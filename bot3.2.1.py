@@ -6,6 +6,8 @@ import pywhatkit as kit
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import Radiobutton
+import time
 
 class AutoMessageSenderApp:
     def __init__(self):
@@ -14,7 +16,7 @@ class AutoMessageSenderApp:
         # Inicialização da janela principal do aplicativo
         self.root = tk.Tk()
         self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
-        self.root.geometry("600x400")  # Definir o tamanho da janela
+        self.root.geometry("700x600")  # Definir o tamanho da janela
 
         # Criação do quadro dentro da janela
         self.frame = tk.Frame(self.root)
@@ -45,8 +47,29 @@ class AutoMessageSenderApp:
         self.instructions_label.pack()
         
         # Botão de legenda
-        self.legend_button = tk.Button(self.frame, text="Mostrar Legenda", command=self.show_legend)
-        self.legend_button.pack()
+        self.legend_button = tk.Button(self.frame, text="Mostrar Legenda", command=self.show_legend, bg="#ffcc00")
+        self.legend_button.pack(padx=10)
+
+        # Variável para armazenar a escolha do usuário
+        self.send_option = tk.StringVar()
+        self.send_option.set("message")  # Opção padrão
+
+        # Botões de opção para escolher como enviar
+        self.send_option_frame = tk.Frame(self.frame, bg="#f0f0f0")
+        self.send_option_frame.pack(pady=10)
+
+        self.message_option = tk.Radiobutton(self.send_option_frame, text="Enviar Apenas a Mensagem", variable=self.send_option, value="message", bg="#f0f0f0")
+        self.message_option.pack(side="left", padx=10)
+
+        self.image_option = tk.Radiobutton(self.send_option_frame, text="Enviar Mensagem com Imagem", variable=self.send_option, value="image", bg="#f0f0f0")
+        self.image_option.pack(side="left", padx=10)
+
+        self.only_image_option = tk.Radiobutton(self.send_option_frame, text="Enviar Apenas a Imagem", variable=self.send_option, value="only_image", bg="#f0f0f0")
+        self.only_image_option.pack(side="left", padx=10)
+
+        # Botão para selecionar uma imagem
+        self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#007acc", fg="white")
+        self.select_image_button.pack(pady=10)
 
         # Botão para enviar as mensagens
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
@@ -85,6 +108,13 @@ class AutoMessageSenderApp:
             # Exibir mensagem de sucesso se o arquivo for selecionado
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
 
+    def select_image(self):
+        # Função para selecionar uma imagem
+        image_file = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.png *.jpeg")])
+        if image_file:
+            self.image_path = image_file
+            messagebox.showinfo("Imagem Selecionada", "Imagem selecionada com sucesso!")
+
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
         if self.selected_file is None:
@@ -107,12 +137,18 @@ class AutoMessageSenderApp:
 
         messages_to_send = []
         
-        if 'Nome do aluno' in df.columns and 'Nome do curso' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
+        if 'Nome do aluno' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
             for index, row in df.iterrows():
+                # Capitalizar e dividir nome do aluno
                 full_name = row['Nome do aluno']
                 aluno = ''.join([name.capitalize() for name in full_name.split()[:1]])
-                curso = row['Nome do curso']
-                curso = ' '.join([part.capitalize() for part in curso.split()])
+                
+                # Verificar se a coluna 'Nome do curso' existe antes de acessá-la
+                if 'Nome do curso' in df.columns:
+                    curso = row['Nome do curso']
+                    curso = ' '.join([part.capitalize() for part in curso.split()])
+                else:
+                    curso = ""  # Definir um valor vazio se a coluna não existir
                 
                 telefone = row.get('Telefone', row.get('Telefone 1', None))  # Tenta obter o telefone
 
@@ -134,7 +170,7 @@ class AutoMessageSenderApp:
 
             self.show_validation_dialog(messages_to_send)
         else:
-            messagebox.showwarning("Aviso", "As colunas 'aluno', 'curso' e/ou 'telefone' não foram encontradas no arquivo.")
+            messagebox.showwarning("Aviso", "As colunas 'aluno' e/ou 'telefone' não foram encontradas no arquivo.")
 
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
@@ -142,10 +178,19 @@ class AutoMessageSenderApp:
 
         for aluno, telefone_formatado, message in messages_to_send:
             try:
-                kit.sendwhatmsg_instantly(telefone_formatado, message)
+                if self.send_option.get() == "message":
+                    kit.sendwhatmsg_instantly(telefone_formatado, message, 10)
+                elif self.send_option.get() == "image":
+                    kit.sendwhats_image(telefone_formatado, self.image_path, message, 15)
+                elif self.send_option.get() == "only_image":
+                    kit.sendwhats_image(telefone_formatado, self.image_path, "", 15)
+                    
                 self.status.append((aluno, telefone_formatado, True))  # Armazenar o status de sucesso
             except Exception as send_exception:
                 self.status.append((aluno, telefone_formatado, False))  # Armazenar o status de erro
+                
+            # Adicionar um atraso de X segundos antes de enviar a próxima mensagem
+            time.sleep(5)  # Substitua 10 pelo número de segundos de atraso desejado
 
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
@@ -185,10 +230,6 @@ class AutoMessageSenderApp:
         cancel_button = tk.Button(validation_dialog, text="Cancelar Envio", command=validation_dialog.destroy, bg="#f44336", fg="white")
         cancel_button.pack(pady=10)
 
-    def start_stop_button_app(self):
-        # Inicializar a instância do botão parar em outro processo
-        stop_app = StopButtonApp(self.app_process)
-    
     def show_legend(self):
         # Função para mostrar a legenda em uma janela separada
         legend_window = tk.Toplevel(self.root)
@@ -196,8 +237,8 @@ class AutoMessageSenderApp:
         legend_window.geometry("300x300")
 
         legend_text = (
-            "{aluno} = nome do aluno\n"
-            "{curso} = nome do curso\n"
+            "{aluno} = aparecerá o nome do aluno\n"
+            "{curso} = aparecerá o nome do curso\n"
             "{daniel} = 😊 Emoji de sorriso\n"
             "{arthur} = 😍 Emoji de coração nos olhos\n"
             "{patriciane} = 😁 Emoji sorridente com olhos fechados\n"
@@ -206,9 +247,10 @@ class AutoMessageSenderApp:
             "{vanessa} = 🤗 Emoji de abraço\n"
             "{yuri} = 😜 Emoji de língua para fora"
         )
-
-        legend_label = tk.Label(legend_window, text=legend_text, padx=10, pady=10)
-        legend_label.pack()
+        
+        legend_textbox = tk.Text(legend_window, wrap="word")
+        legend_textbox.pack(fill="both", expand=True)
+        legend_textbox.insert("end", legend_text)
 
 if __name__ == "__main__":
     app = AutoMessageSenderApp()  # Criar a instância principal do aplicativo
