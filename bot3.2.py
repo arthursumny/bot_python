@@ -1,4 +1,4 @@
-# Esta é a versão 3.1 do Bot.unoesc - Envio de Mensagens Automáticas
+# Esta é a versão 3.2 do Bot.unoesc - Envio de Mensagens Automáticas
 
 import pandas as pd
 import re
@@ -53,7 +53,7 @@ class AutoMessageSenderApp:
         self.show_status_button.pack(pady=10)
 
         # Adicionar rótulo com a versão no canto inferior direito
-        version_label = tk.Label(self.root, text="Versão 3.1", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 3.2", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")  # Posicionar no canto inferior direito
         
         # Iniciar a interface gráfica
@@ -87,8 +87,10 @@ class AutoMessageSenderApp:
 
         if 'Nome do aluno' in df.columns and 'Nome do curso' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
             for index, row in df.iterrows():
-                aluno = row['Nome do aluno']
+                full_name = row['Nome do aluno']
+                aluno = ''.join([name.capitalize() for name in full_name.split()[:1]])
                 curso = row['Nome do curso']
+                curso = ' '.join([part.capitalize() for part in curso.split()])
                 
                 if 'Telefone' in df.columns:
                     telefone = row['Telefone']
