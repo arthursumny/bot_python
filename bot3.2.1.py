@@ -1,4 +1,4 @@
-# Esta é a versão 3.2 do Bot.unoesc - Envio de Mensagens Automáticas
+# Esta é a versão 3.2.1 do Bot.unoesc - Envio de Mensagens Automáticas
 
 import pandas as pd
 import re
@@ -77,7 +77,7 @@ class AutoMessageSenderApp:
         self.show_status_button.pack(pady=10)
 
         # Adicionar rótulo com a versão no canto inferior direito
-        version_label = tk.Label(self.root, text="Versão 3.2", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 3.2.1", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")  # Posicionar no canto inferior direito
         
         # Iniciar a interface gráfica
