@@ -5,6 +5,7 @@ import re
 import pywhatkit as kit
 import tkinter as tk
 import multiprocessing
+import emoji
 from tkinter import filedialog
 from tkinter import messagebox
 
@@ -65,8 +66,12 @@ class AutoMessageSenderApp:
         self.message_text.insert("1.0", "Olá {aluno}, estamos felizes em tê-lo no curso de {curso}!")
 
         # Rótulo de instruções para o usuário
-        self.instructions_label = tk.Label(self.frame, text="Use {aluno} e {curso} nos códigos de formatação para substituir os valores.", bg="#f0f0f0")
+        self.instructions_label = tk.Label(self.frame, text="Use {código} de formatação para substituir os valores.", bg="#f0f0f0")
         self.instructions_label.pack()
+        
+        # Botão de legenda
+        self.legend_button = tk.Button(self.frame, text="Mostrar Legenda", command=self.show_legend)
+        self.legend_button.pack()
 
         # Botão para enviar as mensagens
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
@@ -75,6 +80,21 @@ class AutoMessageSenderApp:
         # Botão para exibir o status
         self.show_status_button = tk.Button(self.frame, text="Exibir Status", command=self.show_status, bg="#ffa500", fg="white")
         self.show_status_button.pack(pady=10)
+
+        # Criar um rótulo para exibir mensagens de aviso
+        self.warning_label = tk.Label(self.frame, text="", fg="red")
+        self.warning_label.pack()
+        
+        # Substituir emojis pelos placeholders correspondentes
+        self.emoji_mapping = {
+            "{daniel}": "😊",
+            "{arthur}": "😍",
+            "{patriciane}": "😁",
+            "{aline}": "😉",
+            "{roseli}": "😄",
+            "{vanessa}": "🤗",
+            "{yuri}": "😜"
+        }
 
         # Adicionar rótulo com a versão no canto inferior direito
         version_label = tk.Label(self.root, text="Versão 3.2.1", bg="#f0f0f0", fg="gray")
@@ -106,9 +126,12 @@ class AutoMessageSenderApp:
             return
 
         custom_message = self.message_text.get("1.0", tk.END).strip()
+        
+        for emoji_placeholder, emoji_code in self.emoji_mapping.items():
+            custom_message = custom_message.replace(emoji_placeholder, emoji_code)
 
         messages_to_send = []
-
+        
         if 'Nome do aluno' in df.columns and 'Nome do curso' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
             for index, row in df.iterrows():
                 full_name = row['Nome do aluno']
@@ -116,17 +139,23 @@ class AutoMessageSenderApp:
                 curso = row['Nome do curso']
                 curso = ' '.join([part.capitalize() for part in curso.split()])
                 
-                if 'Telefone' in df.columns:
-                    telefone = row['Telefone']
-                elif 'Telefone 1' in df.columns:
-                    telefone = row['Telefone 1']
+                telefone = row.get('Telefone', row.get('Telefone 1', None))  # Tenta obter o telefone
 
-                telefone_numerico = re.sub(r'\D', '', telefone)
+                if telefone is None or pd.isnull(telefone):  # Verifica se o telefone é None ou NaN
+                    messagebox.showwarning("Erro", f"Telefone não encontrado para {full_name}. Pulando mensagem.")
+                    continue
+                    
+                telefone_numerico = re.sub(r'\D', '', str(telefone))
+                
+                if len(telefone_numerico) != 11:  # Verifica se o telefone possui 11 dígitos
+                    messagebox.showwarning("Erro", f"Telefone de {full_name} com número incorreto de dígitos.")
+                    continue
+            
                 telefone_formatado = '+55' + telefone_numerico
 
                 message = custom_message.format(aluno=aluno, curso=curso)
-
-                messages_to_send.append((aluno, telefone_formatado, message))
+                
+                messages_to_send.append((full_name, telefone_formatado, message))
 
             self.show_validation_dialog(messages_to_send)
         else:
@@ -180,6 +209,27 @@ class AutoMessageSenderApp:
 
         cancel_button = tk.Button(validation_dialog, text="Cancelar Envio", command=validation_dialog.destroy, bg="#f44336", fg="white")
         cancel_button.pack(pady=10)
+
+    def show_legend(self):
+        # Função para mostrar a legenda em uma janela separada
+        legend_window = tk.Toplevel(self.root)
+        legend_window.title("Legenda")
+        legend_window.geometry("300x300")
+
+        legend_text = (
+            "{aluno} = nome do aluno\n"
+            "{curso} = nome do curso\n"
+            "{daniel} = 😊 Emoji de sorriso\n"
+            "{arthur} = 😍 Emoji de coração nos olhos\n"
+            "{patriciane} = 😁 Emoji sorridente com olhos fechados\n"
+            "{aline} = 😉 Emoji piscando\n"
+            "{roseli} = 😄 Emoji feliz\n"
+            "{vanessa} = 🤗 Emoji de abraço\n"
+            "{yuri} = 😜 Emoji de língua para fora"
+        )
+
+        legend_label = tk.Label(legend_window, text=legend_text, padx=10, pady=10)
+        legend_label.pack()
 
 if __name__ == "__main__":
     # Inicializar a instância do aplicativo em um processo
