@@ -4,33 +4,8 @@ import pandas as pd
 import re
 import pywhatkit as kit
 import tkinter as tk
-import multiprocessing
-import emoji
 from tkinter import filedialog
 from tkinter import messagebox
-
-class StopButtonApp:
-    def __init__(self, app_process):
-        self.app_process = app_process
-        self.root = tk.Tk()
-        self.root.title("Parar Envio de Mensagens")
-        self.root.geometry("300x100")
-
-        self.status_label = tk.Label(self.root, text="Clique no botão para parar o envio de mensagens e abra o aplicativo novamente", fg="blue")
-        self.status_label.pack(pady=20)
-
-        self.stop_button = tk.Button(self.root, text="Parar Envio", command=self.stop_sending, bg="#f44336", fg="white")
-        self.stop_button.pack()
-
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.root.mainloop()
-
-    def stop_sending(self):
-        self.app_process.terminate()
-        self.root.destroy()
-
-    def on_closing(self):
-        self.stop_sending()
 
 class AutoMessageSenderApp:
     def __init__(self):
@@ -61,7 +36,7 @@ class AutoMessageSenderApp:
         self.message_label.pack()
 
         # Caixa de texto para a mensagem
-        self.message_text = tk.Text(self.frame, height=5, width=50, bg="white")  # Cor de fundo da caixa de texto
+        self.message_text = tk.Text(self.frame, height=5, width=50, bg="white", wrap="word")  # Cor de fundo da caixa de texto
         self.message_text.pack()
         self.message_text.insert("1.0", "Olá {aluno}, estamos felizes em tê-lo no curso de {curso}!")
 
@@ -200,7 +175,7 @@ class AutoMessageSenderApp:
         validation_textbox = tk.Text(validation_dialog, wrap="word")
         validation_textbox.pack(fill="both", expand=True)
 
-        # Adicionar mensagens para a caixa de texto
+        # Verificar as mensagens para a caixa de texto
         for aluno, telefone_formatado, message in messages_to_send:
             validation_textbox.insert("end", f"{aluno} ({telefone_formatado}): {message}\n{'-' * 80}\n")
 
@@ -210,6 +185,10 @@ class AutoMessageSenderApp:
         cancel_button = tk.Button(validation_dialog, text="Cancelar Envio", command=validation_dialog.destroy, bg="#f44336", fg="white")
         cancel_button.pack(pady=10)
 
+    def start_stop_button_app(self):
+        # Inicializar a instância do botão parar em outro processo
+        stop_app = StopButtonApp(self.app_process)
+    
     def show_legend(self):
         # Função para mostrar a legenda em uma janela separada
         legend_window = tk.Toplevel(self.root)
@@ -232,9 +211,4 @@ class AutoMessageSenderApp:
         legend_label.pack()
 
 if __name__ == "__main__":
-    # Inicializar a instância do aplicativo em um processo
-    app_process = multiprocessing.Process(target=AutoMessageSenderApp)
-    app_process.start()
-
-    # Inicializar a instância do botão parar em outro processo
-    stop_app = StopButtonApp(app_process)
+    app = AutoMessageSenderApp()  # Criar a instância principal do aplicativo
