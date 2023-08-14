@@ -15,7 +15,7 @@ class StopButtonApp:
         self.root.title("Parar Envio de Mensagens")
         self.root.geometry("300x100")
 
-        self.status_label = tk.Label(self.root, text="Clique no botão para parar o envio de mensagens", fg="blue")
+        self.status_label = tk.Label(self.root, text="Clique no botão para parar o envio de mensagens e abra o aplicativo novamente", fg="blue")
         self.status_label.pack(pady=20)
 
         self.stop_button = tk.Button(self.root, text="Parar Envio", command=self.stop_sending, bg="#f44336", fg="white")
