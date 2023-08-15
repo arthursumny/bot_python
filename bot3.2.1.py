@@ -26,6 +26,9 @@ class AutoMessageSenderApp:
         self.root.configure(bg="#f0f0f0")  # Cor de fundo da janela
         self.frame.configure(bg="#f0f0f0")  # Cor de fundo do quadro
 
+        # Criar um rótulo de aviso para exibir a mensagem de aviso
+        self.show_welcome_message()
+
         # Botão para selecionar um arquivo
         self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
         self.select_button.pack(pady=10)  # Espaçamento entre o botão e outros widgets
@@ -93,6 +96,14 @@ class AutoMessageSenderApp:
         
         # Iniciar a interface gráfica
         self.root.mainloop()
+
+    def show_welcome_message(self):
+        welcome_message = (
+            "Bem-vindo ao Bot.unoesc - Envio de Mensagens Automáticas!\n"
+            "Lembre-se de ajustar os cabeçalhos da planilha para que os dados sejam importados corretamente no programa:\n"
+            "Nome do aluno, Nome do curso, Telefone ou Telefone 1."
+        )
+        messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
 
     def select_file(self):
         # Função para selecionar um arquivo Excel (.xlsx)
@@ -179,26 +190,18 @@ class AutoMessageSenderApp:
         validation_dialog.destroy()  # Fechar a janela de validação
         
         for aluno, telefone_formatado, message in messages_to_send:
-            try:
-                if self.send_option.get() == "message":
-                    kit.sendwhatmsg_instantly(telefone_formatado, message, 15, 2)
-                elif self.send_option.get() == "image":
-                    if not hasattr(self, 'image_path'):
-                        messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar mensagens com imagem.")
-                        return
-                    kit.sendwhats_image(telefone_formatado, self.image_path, message, 17, 2)
-                elif self.send_option.get() == "only_image":
-                    if not hasattr(self, 'image_path'):
-                        messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar apenas a imagem.")
-                        return
-                    kit.sendwhats_image(telefone_formatado, self.image_path, "", 15, 2)
-                    
-                self.status.append((aluno, telefone_formatado, True))  # Armazenar o status de sucesso
-            except Exception as send_exception:
-                self.status.append((aluno, telefone_formatado, False))  # Armazenar o status de erro
-                
-            # Adicionar um atraso de X segundos antes de enviar a próxima mensagem
-            time.sleep(3)
+            if self.send_option.get() == "message":
+                kit.sendwhatmsg_instantly(telefone_formatado, message, 15, 3)
+            elif self.send_option.get() == "image":
+                if not hasattr(self, 'image_path'):
+                    messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar mensagens com imagem.")
+                    return
+                kit.sendwhats_image(telefone_formatado, self.image_path, message, 20, 3)
+            elif self.send_option.get() == "only_image":
+                if not hasattr(self, 'image_path'):
+                    messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar apenas a imagem.")
+                    return
+                kit.sendwhats_image(telefone_formatado, self.image_path, "", 15, 3)
 
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
