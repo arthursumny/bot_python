@@ -26,13 +26,6 @@ class AutoMessageSenderApp:
         self.root.configure(bg="#f0f0f0")  # Cor de fundo da janela
         self.frame.configure(bg="#f0f0f0")  # Cor de fundo do quadro
 
-        # Criar um menu suspenso para selecionar o tipo de envio
-        self.send_type_var = tk.StringVar()
-        self.send_type_var.set("Contato")  # Opção padrão
-
-        self.send_type_menu = tk.OptionMenu(self.frame, self.send_type_var, "Contato", "Grupo")
-        self.send_type_menu.pack(pady=10)
-
         # Botão para selecionar um arquivo
         self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
         self.select_button.pack(pady=10)  # Espaçamento entre o botão e outros widgets
