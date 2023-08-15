@@ -26,12 +26,16 @@ class AutoMessageSenderApp:
         self.root.configure(bg="#f0f0f0")  # Cor de fundo da janela
         self.frame.configure(bg="#f0f0f0")  # Cor de fundo do quadro
 
+        # Criar um menu suspenso para selecionar o tipo de envio
+        self.send_type_var = tk.StringVar()
+        self.send_type_var.set("Contato")  # Opção padrão
+
+        self.send_type_menu = tk.OptionMenu(self.frame, self.send_type_var, "Contato", "Grupo")
+        self.send_type_menu.pack(pady=10)
+
         # Botão para selecionar um arquivo
         self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
         self.select_button.pack(pady=10)  # Espaçamento entre o botão e outros widgets
-
-        # variável para o status
-        self.status = []
         
         # Rótulo para a caixa de texto da mensagem
         self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
@@ -75,10 +79,6 @@ class AutoMessageSenderApp:
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
         self.send_button.pack(pady=10)
         
-        # Botão para exibir o status
-        self.show_status_button = tk.Button(self.frame, text="Exibir Status", command=self.show_status, bg="#ffa500", fg="white")
-        self.show_status_button.pack(pady=10)
-
         # Criar um rótulo para exibir mensagens de aviso
         self.warning_label = tk.Label(self.frame, text="", fg="red")
         self.warning_label.pack()
@@ -114,6 +114,15 @@ class AutoMessageSenderApp:
         if image_file:
             self.image_path = image_file
             messagebox.showinfo("Imagem Selecionada", "Imagem selecionada com sucesso!")
+
+            if self.send_option.get() == "only_image":
+                # Limpar e bloquear a caixa de texto
+                self.message_text.delete("1.0", tk.END)
+                self.message_text.config(state=tk.DISABLED)
+            else:
+                # Desbloquear a caixa de texto
+                self.message_text.config(state=tk.NORMAL)
+
 
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
@@ -175,40 +184,32 @@ class AutoMessageSenderApp:
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
         validation_dialog.destroy()  # Fechar a janela de validação
-
+        
         for aluno, telefone_formatado, message in messages_to_send:
             try:
                 if self.send_option.get() == "message":
-                    kit.sendwhatmsg_instantly(telefone_formatado, message, 10)
+                    kit.sendwhatmsg_instantly(telefone_formatado, message, 15, 2)
                 elif self.send_option.get() == "image":
-                    kit.sendwhats_image(telefone_formatado, self.image_path, message, 15)
+                    if not hasattr(self, 'image_path'):
+                        messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar mensagens com imagem.")
+                        return
+                    kit.sendwhats_image(telefone_formatado, self.image_path, message, 17, 2)
                 elif self.send_option.get() == "only_image":
-                    kit.sendwhats_image(telefone_formatado, self.image_path, "", 15)
+                    if not hasattr(self, 'image_path'):
+                        messagebox.showwarning("Aviso", "Selecione uma imagem antes de enviar apenas a imagem.")
+                        return
+                    kit.sendwhats_image(telefone_formatado, self.image_path, "", 15, 2)
                     
                 self.status.append((aluno, telefone_formatado, True))  # Armazenar o status de sucesso
             except Exception as send_exception:
                 self.status.append((aluno, telefone_formatado, False))  # Armazenar o status de erro
                 
             # Adicionar um atraso de X segundos antes de enviar a próxima mensagem
-            time.sleep(5)  # Substitua 10 pelo número de segundos de atraso desejado
+            time.sleep(3)
 
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
-            
-    def show_status(self):
-        # Função para exibir o status das mensagens enviadas
-        status_window = tk.Toplevel(self.root)
-        status_window.title("Status de Envio")
-        status_window.geometry("400x300")
-
-        status_text = tk.Text(status_window, height=15, width=50)
-        status_text.pack(padx=20, pady=20)
-
-        for aluno, telefone, enviado in self.status:
-            status_text.insert(tk.END, f"Aluno: {aluno}\nTelefone: {telefone}\nEnviado: {'Sim' if enviado else 'Não'}\n\n")
-
-        status_text.config(state=tk.DISABLED)  # Torna o texto somente leitura
-        
+                 
     def show_validation_dialog(self, messages_to_send):
         # Mostrar janela de validação de mensagens
         validation_dialog = tk.Toplevel(self.root)
