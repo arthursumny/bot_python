@@ -9,6 +9,7 @@ from tkinter import messagebox
 from tkinter import Radiobutton
 import time
 import os
+from PIL import Image, ImageTk
 
 class MainInterface:
     def __init__(self, root):
@@ -49,7 +50,7 @@ class ContactInterface:
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
         self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
-        self.root.geometry("900x800")  # Definir o tamanho da janela
+        self.root.geometry("600x500")  # Definir o tamanho da janela
         self.root.protocol("WM_DELETE_WINDOW", self.close_contact_interface)  # Define função de fechamento personalizada
 
         # Criação do quadro dentro da janela
@@ -68,29 +69,33 @@ class ContactInterface:
         self.back_button.pack()
 
         # Label para exibir o nome do arquivo
-        self.file_label = tk.Label(self.frame, text="", bg="#f0f0f0")
-        self.file_label.pack()
-
+        self.file_label = tk.Label(self.frame, text="", bg="#e0e0e0", relief="sunken")
+        self.file_label.place(x=226, y=7, width=110)
+        
         # Botão para selecionar um arquivo
         self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
-        self.select_button.pack(pady=(10, 50))
+        self.select_button.pack(pady=(30, 50))
 
         # Botão para selecionar uma imagem
         self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#007acc", fg="white")
-        self.select_image_button.place(relx=1.015, rely=0.36, anchor="se", x=-10)  # Alinhamento à direita com um pequeno espaçamento
+        self.select_image_button.place(x=447, y=99)
+        
+        # Label para exibir o nome da imagem
+        self.image_label = tk.Label(self.root, text="", relief="sunken", bg="#e0e0e0")
+        self.image_label.place(x=470, y=95, width=110)
         
         # Rótulo para a caixa de texto da mensagem
         self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
         self.message_label.pack()
 
         # Caixa de texto para a mensagem
-        self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")  # Cor de fundo da caixa de texto
+        self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
         self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá {aluno}, estamos felizes em tê-lo no curso de {curso} {roseli}{roseli}{roseli}!")
-
+          
         # Botão de legenda
         self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
-        self.legend_button.place(rely=0.36, anchor="sw")
+        self.legend_button.place(x=0, y=99)
 
         # Botão para enviar as mensagens
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
@@ -113,14 +118,14 @@ class ContactInterface:
 
         # Adicionar rótulo com a versão no canto inferior direito
         version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
-        version_label.pack(side="bottom", padx=10, pady=10, anchor="se")  # Posicionar no canto inferior direito
+        version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Iniciar a interface gráfica
         self.root.mainloop()
 
     def close_contact_interface(self):
         self.root.destroy()  # Encerra a janela de contato
-        self.main_interface.root.deiconify()  # Exibe a interface pai novamente
+        self.parent.deiconify()  # Exibe a interface pai novamente
 
     def show_welcome_message(self):
         welcome_message = (
@@ -141,7 +146,7 @@ class ContactInterface:
             # Exibir mensagem de sucesso se o arquivo for selecionado
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
-            self.file_label.config(text=f"Arquivo selecionado: {file_name}")
+            self.file_label.config(text=f"{file_name}")
 
     def select_image(self):
         # Função para selecionar uma imagem
@@ -149,6 +154,32 @@ class ContactInterface:
         if image_file:
             self.image_path = image_file
             messagebox.showinfo("Imagem Selecionada", "Imagem selecionada com sucesso!")
+            self.show_image()
+
+            # Atualizar a label fixa com o nome do arquivo
+            file_name = os.path.basename(image_file)
+            self.image_label.config(text=file_name)
+
+    def show_image(self):
+        if self.image_path:
+            image = Image.open(self.image_path)
+            image = image.resize((400, 400))  # Redimensione a imagem, se necessário
+
+            # Crie uma nova janela para mostrar a imagem
+            image_window = tk.Toplevel(self.root)
+            image_window.title("Visualização de Imagem")
+
+            # Converta a imagem para o formato exibível pelo widget Label
+            photo = ImageTk.PhotoImage(image)
+
+            # Configure o widget Label na nova janela para mostrar a imagem
+            image_label = tk.Label(image_window, image=photo)
+            image_label.photo = photo  # Mantenha uma referência para evitar que a imagem seja liberada da memória
+            image_label.pack()
+
+            # Botão "OK" para fechar a janela
+            ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
+            ok_button.pack(pady=10)
 
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
@@ -244,7 +275,7 @@ class ContactInterface:
         # Função para mostrar a legenda em uma janela separada
         legend_window = tk.Toplevel(self.root)
         legend_window.title("Legenda")
-        legend_window.geometry("300x300")
+        legend_window.geometry("400x300")
 
         legend_text = (
             "{aluno} = aparecerá o nome do aluno\n"
@@ -271,7 +302,7 @@ class GroupInterface:
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
         self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
-        self.root.geometry("900x800")  # Definir o tamanho da janela
+        self.root.geometry("600x500")  # Definir o tamanho da janela
         self.root.protocol("WM_DELETE_WINDOW", self.close_Group_interface)  # Define função de fechamento personalizada
 
         # Criação do quadro dentro da janela
@@ -290,29 +321,33 @@ class GroupInterface:
         self.back_button.pack()
 
         # Label para exibir o nome do arquivo
-        self.file_label = tk.Label(self.frame, text="", bg="#f0f0f0")
-        self.file_label.pack()
-
+        self.file_label = tk.Label(self.frame, text="", bg="#e0e0e0", relief="sunken")
+        self.file_label.place(x=226, y=7, width=110)
+        
         # Botão para selecionar um arquivo
         self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
-        self.select_button.pack(pady=(10, 50))
+        self.select_button.pack(pady=(30, 50))
 
         # Botão para selecionar uma imagem
         self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#007acc", fg="white")
-        self.select_image_button.place(relx=1.015, rely=0.36, anchor="se", x=-10)  # Alinhamento à direita com um pequeno espaçamento
+        self.select_image_button.place(x=447, y=99)
+        
+        # Label para exibir o nome da imagem
+        self.image_label = tk.Label(self.root, text="", relief="sunken", bg="#e0e0e0")
+        self.image_label.place(x=470, y=95, width=110)
         
         # Rótulo para a caixa de texto da mensagem
         self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
         self.message_label.pack()
 
         # Caixa de texto para a mensagem
-        self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")  # Cor de fundo da caixa de texto
+        self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
         self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá {aluno}, estamos felizes em tê-lo no curso de {curso} {roseli}{roseli}{roseli}!")
-
+          
         # Botão de legenda
         self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
-        self.legend_button.place(rely=0.36, anchor="sw")
+        self.legend_button.place(x=0, y=99)
 
         # Botão para enviar as mensagens
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
@@ -335,7 +370,7 @@ class GroupInterface:
 
         # Adicionar rótulo com a versão no canto inferior direito
         version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
-        version_label.pack(side="bottom", padx=10, pady=10, anchor="se")  # Posicionar no canto inferior direito
+        version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Iniciar a interface gráfica
         self.root.mainloop()
@@ -363,7 +398,7 @@ class GroupInterface:
             # Exibir mensagem de sucesso se o arquivo for selecionado
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
-            self.file_label.config(text=f"Arquivo selecionado: {file_name}")
+            self.file_label.config(text=f"{file_name}")
             
     def select_image(self):
         # Função para selecionar uma imagem
@@ -371,6 +406,32 @@ class GroupInterface:
         if image_file:
             self.image_path = image_file
             messagebox.showinfo("Imagem Selecionada", "Imagem selecionada com sucesso!")
+            self.show_image()
+
+            # Atualizar a label fixa com o nome do arquivo
+            file_name = os.path.basename(image_file)
+            self.image_label.config(text=file_name)
+
+    def show_image(self):
+        if self.image_path:
+            image = Image.open(self.image_path)
+            image = image.resize((400, 400))  # Redimensione a imagem, se necessário
+
+            # Crie uma nova janela para mostrar a imagem
+            image_window = tk.Toplevel(self.root)
+            image_window.title("Visualização de Imagem")
+
+            # Converta a imagem para o formato exibível pelo widget Label
+            photo = ImageTk.PhotoImage(image)
+
+            # Configure o widget Label na nova janela para mostrar a imagem
+            image_label = tk.Label(image_window, image=photo)
+            image_label.photo = photo  # Mantenha uma referência para evitar que a imagem seja liberada da memória
+            image_label.pack()
+
+            # Botão "OK" para fechar a janela
+            ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
+            ok_button.pack(pady=10)
 
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
@@ -466,7 +527,7 @@ class GroupInterface:
         # Função para mostrar a legenda em uma janela separada
         legend_window = tk.Toplevel(self.root)
         legend_window.title("Legenda")
-        legend_window.geometry("300x300")
+        legend_window.geometry("400x300")
 
         legend_text = (
             "{aluno} = aparecerá o nome do aluno\n"
