@@ -1,0 +1,3 @@
+pip freeze para requirements.txt
+
+virtual env
