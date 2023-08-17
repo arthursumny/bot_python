@@ -17,9 +17,9 @@ class MainInterface:
         self.root.title("Menu Principal")
         self.root.geometry("650x180")
 
-        # Centralizar os botões verticalmente na página
-        self.root.grid_rowconfigure(0, weight=1)
+        # Centraliza os botões verticalmente na página
         self.root.columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
 
         welcome_label = tk.Label(self.root, text="Bem-vindo ao bot de envio de mensagens automáticas da unoesc!",fg="blue", font=("Arial", 15, "bold"))
         welcome_label.pack(pady=20)
@@ -28,17 +28,14 @@ class MainInterface:
         self.button_contact.pack(pady=10)
 
         self.button_group = tk.Button(self.root, text="Mensagem para Grupo", command=self.open_group_interface, bg="#FFB700", fg="#5D1D88")
-        self.button_group.pack(pady=10)
-
-        # Centralizar os botões verticalmente na página
-        self.root.grid_rowconfigure(1, weight=1)
+        self.button_group.pack(pady=10)        
 
     def open_contact_interface(self):
-        self.root.withdraw()  # Esconder a interface pai
+        self.root.withdraw()
         contact_interface = ContactInterface(self.root, self)
 
     def open_group_interface(self):
-        self.root.withdraw()  # Esconder a interface pai
+        self.root.withdraw()
         group_interface = GroupInterface(self.root, self)
 
 class ContactInterface:
@@ -50,18 +47,18 @@ class ContactInterface:
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
         self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
-        self.root.geometry("600x500")  # Definir o tamanho da janela
-        self.root.protocol("WM_DELETE_WINDOW", self.close_contact_interface)  # Define função de fechamento personalizada
+        self.root.geometry("600x500")
+        self.root.protocol("WM_DELETE_WINDOW", self.close_contact_interface) 
 
         # Criação do quadro dentro da janela
         self.frame = tk.Frame(self.root)
         self.frame.pack(padx=20, pady=20)
 
         # Personalizar cores
-        self.root.configure(bg="#f0f0f0")  # Cor de fundo da janela
-        self.frame.configure(bg="#f0f0f0")  # Cor de fundo do quadro
+        self.root.configure(bg="#f0f0f0")
+        self.frame.configure(bg="#f0f0f0")
 
-        # Criar um rótulo de aviso para exibir a mensagem de aviso
+        # Rótulo para exibir a mensagem de aviso
         self.show_welcome_message()
 
         # Botão para voltar ao menu
@@ -84,11 +81,11 @@ class ContactInterface:
         self.image_label = tk.Label(self.root, text="", relief="sunken", bg="#e0e0e0")
         self.image_label.place(x=470, y=95, width=110)
         
-        # Rótulo para a caixa de texto da mensagem
+        # Rótulo para a caixa de texto
         self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
         self.message_label.pack()
 
-        # Caixa de texto para a mensagem
+        # Caixa de texto
         self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
         self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá {aluno}, estamos felizes em tê-lo no curso de {curso} {roseli}{roseli}{roseli}!")
@@ -101,11 +98,11 @@ class ContactInterface:
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
         self.send_button.pack(pady=(10,0))
         
-        # Criar um rótulo para exibir mensagens de aviso
+        # Rótulo para exibir mensagens de aviso
         self.warning_label = tk.Label(self.frame, text="", fg="red")
         self.warning_label.pack()
         
-        # Substituir emojis pelos placeholders correspondentes
+        # Substitui emojis pelos placeholders
         self.emoji_mapping = {
             "{daniel}": "😊",
             "{arthur}": "😍",
@@ -116,16 +113,16 @@ class ContactInterface:
             "{yuri}": "😜"
         }
 
-        # Adicionar rótulo com a versão no canto inferior direito
+        # Rótulo com a versão
         version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
-        # Iniciar a interface gráfica
+        # Inicia a interface gráfica
         self.root.mainloop()
 
     def close_contact_interface(self):
-        self.root.destroy()  # Encerra a janela de contato
-        self.parent.deiconify()  # Exibe a interface pai novamente
+        self.root.destroy()
+        self.parent.deiconify()
 
     def show_welcome_message(self):
         welcome_message = (
@@ -136,14 +133,13 @@ class ContactInterface:
         messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
 
     def back_to_main_interface(self):
-        self.root.destroy()  # Fechar a interface filha
-        self.main_interface.root.deiconify()  # Exibir a interface pai novamente
+        self.root.destroy()
+        self.main_interface.root.deiconify()
 
     def select_file(self):
-        # Função para selecionar um arquivo Excel (.xlsx)
+        # Função para selecionar um arquivo .xlsx
         self.selected_file = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
         if self.selected_file:
-            # Exibir mensagem de sucesso se o arquivo for selecionado
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
             self.file_label.config(text=f"{file_name}")
@@ -156,28 +152,27 @@ class ContactInterface:
             messagebox.showinfo("Imagem Selecionada", "Imagem selecionada com sucesso!")
             self.show_image()
 
-            # Atualizar a label fixa com o nome do arquivo
+            # Atualiza a label com o nome do arquivo
             file_name = os.path.basename(image_file)
             self.image_label.config(text=file_name)
 
     def show_image(self):
         if self.image_path:
             image = Image.open(self.image_path)
-            image = image.resize((400, 400))  # Redimensione a imagem, se necessário
+            image = image.resize((400, 400))
 
-            # Crie uma nova janela para mostrar a imagem
+            # Cria uma nova janela para mostrar a imagem
             image_window = tk.Toplevel(self.root)
             image_window.title("Visualização de Imagem")
 
-            # Converta a imagem para o formato exibível pelo widget Label
+            # Converte a imagem para o formato do widget Label
             photo = ImageTk.PhotoImage(image)
 
-            # Configure o widget Label na nova janela para mostrar a imagem
+            # Configura o widget Label para mostrar a imagem
             image_label = tk.Label(image_window, image=photo)
-            image_label.photo = photo  # Mantenha uma referência para evitar que a imagem seja liberada da memória
+            image_label.photo = photo 
             image_label.pack()
 
-            # Botão "OK" para fechar a janela
             ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
             ok_button.pack(pady=10)
 
@@ -205,26 +200,24 @@ class ContactInterface:
         
         if 'Nome do aluno' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
             for index, row in df.iterrows():
-                # Capitalizar e dividir nome do aluno
                 full_name = row['Nome do aluno']
                 aluno = ''.join([name.capitalize() for name in full_name.split()[:1]])
                 
-                # Verificar se a coluna 'Nome do curso' existe antes de acessá-la
                 if 'Nome do curso' in df.columns:
                     curso = row['Nome do curso']
                     curso = ' '.join([part.capitalize() for part in curso.split()])
                 else:
-                    curso = ""  # Definir um valor vazio se a coluna não existir
+                    curso = ""
                 
-                telefone = row.get('Telefone', row.get('Telefone 1', None))  # Tenta obter o telefone
+                telefone = row.get('Telefone', row.get('Telefone 1', None))
 
-                if telefone is None or pd.isnull(telefone):  # Verifica se o telefone é None ou NaN
+                if telefone is None or pd.isnull(telefone):
                     messagebox.showwarning("Erro", f"Telefone não encontrado para {full_name}. Pulando mensagem.")
                     continue
                     
                 telefone_numerico = re.sub(r'\D', '', str(telefone))
                 
-                if len(telefone_numerico) != 11:  # Verifica se o telefone possui 11 dígitos
+                if len(telefone_numerico) != 11:
                     messagebox.showwarning("Erro", f"Telefone de {full_name} com número incorreto de dígitos.")
                     continue
             
@@ -240,7 +233,7 @@ class ContactInterface:
 
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
-        validation_dialog.destroy()  # Fechar a janela de validação
+        validation_dialog.destroy()
         
         for aluno, telefone_formatado, message in messages_to_send:
             if hasattr(self, 'image_path'):
@@ -251,17 +244,16 @@ class ContactInterface:
         messagebox.showinfo("Sucesso", success_message)
                  
     def show_validation_dialog(self, messages_to_send):
-        # Mostrar janela de validação de mensagens
+        # Mostra janela de validação
         validation_dialog = tk.Toplevel(self.root)
         validation_dialog.title("Validação de Mensagens")
         
-        # Maximizar a janela de validação
-        validation_dialog.attributes('-toolwindow', True)
+        validation_dialog.attributes('-zoomed', True)
 
         validation_textbox = tk.Text(validation_dialog, wrap="word")
         validation_textbox.pack(fill="both", expand=True)
 
-        # Verificar as mensagens para a caixa de texto
+        # Verifica as mensagens
         for aluno, telefone_formatado, message in messages_to_send:
             validation_textbox.insert("end", f"{aluno} ({telefone_formatado}): {message}\n{'-' * 80}\n")
 
@@ -272,7 +264,7 @@ class ContactInterface:
         cancel_button.pack(pady=10)
 
     def show_legend(self):
-        # Função para mostrar a legenda em uma janela separada
+        # Função para mostrar a legenda
         legend_window = tk.Toplevel(self.root)
         legend_window.title("Legenda")
         legend_window.geometry("400x300")
@@ -296,24 +288,24 @@ class ContactInterface:
 class GroupInterface:
     def __init__(self, parent, main_interface):
         self.selected_file = None
-        self.main_interface = main_interface  # Referência para a interface pai
+        self.main_interface = main_interface
 
         # Inicialização da janela principal do aplicativo
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
         self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
-        self.root.geometry("600x500")  # Definir o tamanho da janela
-        self.root.protocol("WM_DELETE_WINDOW", self.close_Group_interface)  # Define função de fechamento personalizada
-
-        # Criação do quadro dentro da janela
+        self.root.geometry("600x500")
+        self.root.protocol("WM_DELETE_WINDOW", self.close_Group_interface)
+        
+        # Quadro dentro da janela
         self.frame = tk.Frame(self.root)
         self.frame.pack(padx=20, pady=20)
 
         # Personalizar cores
-        self.root.configure(bg="#f0f0f0")  # Cor de fundo da janela
-        self.frame.configure(bg="#f0f0f0")  # Cor de fundo do quadro
+        self.root.configure(bg="#f0f0f0")
+        self.frame.configure(bg="#f0f0f0")
 
-        # Criar um rótulo de aviso para exibir a mensagem de aviso
+        # Rótulo de aviso para exibir a mensagem
         self.show_welcome_message()
 
         # Botão para voltar ao menu
@@ -336,14 +328,14 @@ class GroupInterface:
         self.image_label = tk.Label(self.root, text="", relief="sunken", bg="#e0e0e0")
         self.image_label.place(x=470, y=95, width=110)
         
-        # Rótulo para a caixa de texto da mensagem
+        # Rótulo para a caixa de texto
         self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
         self.message_label.pack()
 
-        # Caixa de texto para a mensagem
+        # Caixa de texto
         self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
-        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {componenete}, cuidado com o bot do café.{roseli}{roseli}{roseli}!")
+        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {componente}, cuidado com o bot do café.{roseli}{roseli}{roseli}!")
           
         # Botão de legenda
         self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
@@ -353,11 +345,11 @@ class GroupInterface:
         self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
         self.send_button.pack(pady=(10,0))
         
-        # Criar um rótulo para exibir mensagens de aviso
+        # Rótulo para exibir mensagens de aviso
         self.warning_label = tk.Label(self.frame, text="", fg="red")
         self.warning_label.pack()
         
-        # Substituir emojis pelos placeholders correspondentes
+        # Substitui emojis pelos placeholders
         self.emoji_mapping = {
             "{daniel}": "😊",
             "{arthur}": "😍",
@@ -368,16 +360,16 @@ class GroupInterface:
             "{yuri}": "😜"
         }
 
-        # Adicionar rótulo com a versão no canto inferior direito
+        # Rótulo com a versão
         version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
-        # Iniciar a interface gráfica
+        # Inicia a interface gráfica
         self.root.mainloop()
 
     def close_Group_interface(self):
-        self.root.destroy()  # Encerra a janela de contato
-        self.parent.deiconify()  # Exibe a interface pai novamente
+        self.root.destroy()
+        self.parent.deiconify()
 
     def show_welcome_message(self):
         welcome_message = (
@@ -388,14 +380,13 @@ class GroupInterface:
         messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
 
     def back_to_main_interface(self):
-        self.root.destroy()  # Fechar a interface filha
-        self.main_interface.root.deiconify()  # Exibir a interface pai novamente
+        self.root.destroy() 
+        self.main_interface.root.deiconify()
 
     def select_file(self):
         # Função para selecionar um arquivo Excel (.xlsx)
         self.selected_file = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
         if self.selected_file:
-            # Exibir mensagem de sucesso se o arquivo for selecionado
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
             self.file_label.config(text=f"{file_name}")
@@ -415,21 +406,20 @@ class GroupInterface:
     def show_image(self):
         if self.image_path:
             image = Image.open(self.image_path)
-            image = image.resize((400, 400))  # Redimensione a imagem, se necessário
+            image = image.resize((400, 400))  
 
-            # Crie uma nova janela para mostrar a imagem
+            # Janela para mostrar a imagem
             image_window = tk.Toplevel(self.root)
             image_window.title("Visualização de Imagem")
 
-            # Converta a imagem para o formato exibível pelo widget Label
+            # Converte a imagem para o formato exibível pelo widget Label
             photo = ImageTk.PhotoImage(image)
 
-            # Configure o widget Label na nova janela para mostrar a imagem
+            # Widget Label para mostrar a imagem
             image_label = tk.Label(image_window, image=photo)
             image_label.photo = photo  # Mantenha uma referência para evitar que a imagem seja liberada da memória
             image_label.pack()
 
-            # Botão "OK" para fechar a janela
             ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
             ok_button.pack(pady=10)
 
@@ -458,13 +448,12 @@ class GroupInterface:
         if 'Nome do grupo' in df.columns:
             for index, row in df.iterrows():
                 grupo = row['Nome do grupo']
-                grupo_formatado = '"' + grupo + '"'
+                grupo_formatado = grupo
                 
-                # Verificar se a coluna 'Nome do curso' existe antes de acessá-la
                 if 'Horário' in df.columns:
                     horario = row['Horário']
                 else:
-                    horario = ""  # Definir um valor vazio se a coluna não existir
+                    horario = "" 
                     
                 if 'componente' in df.columns:
                     componente = row['Nome do curso']
@@ -475,35 +464,35 @@ class GroupInterface:
                 message = custom_message.format(componente=componente, horario=horario)
                 
                 messages_to_send.append((componente, grupo_formatado, message))
+                print(grupo_formatado)
 
             self.show_validation_dialog(messages_to_send)
         else:
-            messagebox.showwarning("Aviso", "As colunas 'aluno' e/ou 'telefone' não foram encontradas no arquivo.")
+            messagebox.showwarning("Aviso", "A coluna 'grupo' não foi encontrada no arquivo.")
 
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
-        validation_dialog.destroy()  # Fechar a janela de validação
+        validation_dialog.destroy()
         
         for grupo_formatado, componente, message in messages_to_send:
             if hasattr(self, 'image_path'):
                 kit.sendwhats_image(grupo_formatado, self.image_path, message, 20, 3)
             else:
+                print("\n",grupo_formatado)
                 kit.sendwhatmsg_to_group_instantly(grupo_formatado, message, 30, 3)
+                print("\n",grupo_formatado)
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
                  
     def show_validation_dialog(self, messages_to_send):
-        # Mostrar janela de validação de mensagens
+        # Mostra janela de validação de mensagens
         validation_dialog = tk.Toplevel(self.root)
         validation_dialog.title("Validação de Mensagens")
-        
-        # Maximizar a janela de validação
-        validation_dialog.attributes('-toolwindow', True)
-
+        validation_dialog.attributes('-zoomed', True)
         validation_textbox = tk.Text(validation_dialog, wrap="word")
         validation_textbox.pack(fill="both", expand=True)
 
-        # Verificar as mensagens para a caixa de texto
+        # Verifica as mensagens para a caixa de texto
         for grupo, componente, message in messages_to_send:
             validation_textbox.insert("end", f"{componente} ({grupo}): {message}\n{'-' * 80}\n")
 
