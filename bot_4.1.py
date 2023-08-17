@@ -1,4 +1,4 @@
-# Esta é a versão 4.0 do Bot.unoesc - Envio de Mensagens Automáticas
+# Esta é a versão 4.1 do Bot.unoesc - Envio de Mensagens Automáticas
 
 import pandas as pd
 import re
@@ -114,7 +114,7 @@ class ContactInterface:
         }
 
         # Rótulo com a versão
-        version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 4.1", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Inicia a interface gráfica
@@ -247,9 +247,7 @@ class ContactInterface:
         # Mostra janela de validação
         validation_dialog = tk.Toplevel(self.root)
         validation_dialog.title("Validação de Mensagens")
-        
-        validation_dialog.attributes('-zoomed', True)
-
+        validation_dialog.attributes('-toolwindow', True)
         validation_textbox = tk.Text(validation_dialog, wrap="word")
         validation_textbox.pack(fill="both", expand=True)
 
@@ -335,7 +333,7 @@ class GroupInterface:
         # Caixa de texto
         self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
-        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {componente}, cuidado com o bot do café.{roseli}{roseli}{roseli}!")
+        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {curso}, cuidado com o bot do café.{roseli}{roseli}{roseli}!")
           
         # Botão de legenda
         self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
@@ -361,7 +359,7 @@ class GroupInterface:
         }
 
         # Rótulo com a versão
-        version_label = tk.Label(self.root, text="Versão 4.0", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 4.1", bg="#f0f0f0", fg="gray")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Inicia a interface gráfica
@@ -375,7 +373,7 @@ class GroupInterface:
         welcome_message = (
             "Bot.unoesc - Envio de Mensagens Automáticas - grupo!\n"
             "Lembre-se de ajustar os cabeçalhos da planilha para que os dados sejam importados corretamente no programa:\n"
-            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX."
+            "'Nome do grupo'\n'Nome do curso'\n'Horário'."
         )
         messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
 
@@ -448,25 +446,25 @@ class GroupInterface:
         if 'Nome do grupo' in df.columns:
             for index, row in df.iterrows():
                 grupo = row['Nome do grupo']
-                grupo_formatado = grupo
                 
                 if 'Horário' in df.columns:
                     horario = row['Horário']
                 else:
                     horario = "" 
                     
-                if 'componente' in df.columns:
-                    componente = row['Nome do curso']
+                if 'Nome do curso' in df.columns:
+                    curso = row['Nome do curso']
                 else:
-                    componente = ""
+                    curso = ""
                 
            
-                message = custom_message.format(componente=componente, horario=horario)
+                message = custom_message.format(curso=curso, horario=horario)
                 
-                messages_to_send.append((componente, grupo_formatado, message))
-                print(grupo_formatado)
+                messages_to_send.append((grupo, curso, message))
+                print(grupo)
 
             self.show_validation_dialog(messages_to_send)
+            print("\n", grupo)
         else:
             messagebox.showwarning("Aviso", "A coluna 'grupo' não foi encontrada no arquivo.")
 
@@ -474,13 +472,13 @@ class GroupInterface:
         # Função para enviar as mensagens
         validation_dialog.destroy()
         
-        for grupo_formatado, componente, message in messages_to_send:
+        for grupo, curso, message in messages_to_send:
             if hasattr(self, 'image_path'):
-                kit.sendwhats_image(grupo_formatado, self.image_path, message, 20, 3)
+                print(message)
+                kit.sendwhats_image(grupo, self.image_path, message, 30, 3)
             else:
-                print("\n",grupo_formatado)
-                kit.sendwhatmsg_to_group_instantly(grupo_formatado, message, 30, 3)
-                print("\n",grupo_formatado)
+                print(message)
+                kit.sendwhatmsg_to_group_instantly(grupo, message, 20, 3)
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
                  
@@ -488,13 +486,13 @@ class GroupInterface:
         # Mostra janela de validação de mensagens
         validation_dialog = tk.Toplevel(self.root)
         validation_dialog.title("Validação de Mensagens")
-        validation_dialog.attributes('-zoomed', True)
+        validation_dialog.attributes('-toolwindow', True)
         validation_textbox = tk.Text(validation_dialog, wrap="word")
         validation_textbox.pack(fill="both", expand=True)
 
         # Verifica as mensagens para a caixa de texto
-        for grupo, componente, message in messages_to_send:
-            validation_textbox.insert("end", f"{componente} ({grupo}): {message}\n{'-' * 80}\n")
+        for grupo, curso, message in messages_to_send:
+            validation_textbox.insert("end", f"{curso} ({grupo}): {message}\n{'-' * 80}\n")
 
         send_button = tk.Button(validation_dialog, text="Enviar Mensagens", command=lambda: self.send_messages(messages_to_send, validation_dialog), bg="#4caf50", fg="white")
         send_button.pack(pady=10)
