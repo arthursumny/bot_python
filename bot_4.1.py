@@ -6,7 +6,7 @@ import pywhatkit as kit
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
-from tkinter import Radiobutton
+from tkinter import PhotoImage
 import time
 import os
 from PIL import Image, ImageTk
@@ -17,11 +17,17 @@ class MainInterface:
         self.root.title("Menu Principal")
         self.root.geometry("650x180")
 
+        # Impede o redimensionamento vertical e horizontal
+        self.root.resizable("0", "0")
+
+        # Define a cor de fundo
+        self.root.configure(bg="#3fb8af")
+
         # Centraliza os botões verticalmente na página
         self.root.columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(1, weight=1)
 
-        welcome_label = tk.Label(self.root, text="Bem-vindo ao bot de envio de mensagens automáticas da unoesc!",fg="blue", font=("Arial", 15, "bold"))
+        welcome_label = tk.Label(self.root, text="Bem-vindo ao bot de envio de mensagens automáticas da unoesc!", bg="#3fb8af", fg="black", font=("Arial", 15, "bold"))
         welcome_label.pack(pady=20)
 
         self.button_contact = tk.Button(self.root, text="Mensagem para Contato", command=self.open_contact_interface, bg="#FFB700", fg="#5D1D88")
@@ -39,6 +45,8 @@ class MainInterface:
         group_interface = GroupInterface(self.root, self)
 
 class ContactInterface:
+    
+    
     def __init__(self, parent, main_interface):
         self.selected_file = None
         self.main_interface = main_interface  # Referência para a interface pai
@@ -46,18 +54,19 @@ class ContactInterface:
         # Inicialização da janela principal do aplicativo
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
-        self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
+        self.root.title("Bot.unoesc - Envio de Mensagens Automáticas - Contato")
         self.root.geometry("600x500")
         self.root.protocol("WM_DELETE_WINDOW", self.close_contact_interface) 
+        self.root.resizable("0", "0")
 
         # Criação do quadro dentro da janela
         self.frame = tk.Frame(self.root)
         self.frame.pack(padx=20, pady=20)
 
         # Personalizar cores
-        self.root.configure(bg="#f0f0f0")
-        self.frame.configure(bg="#f0f0f0")
-
+        self.root.configure(bg="#3fb8af")
+        self.frame.configure(bg="#3fb8af")
+        
         # Rótulo para exibir a mensagem de aviso
         self.show_welcome_message()
 
@@ -70,11 +79,11 @@ class ContactInterface:
         self.file_label.place(x=226, y=7, width=110)
         
         # Botão para selecionar um arquivo
-        self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
+        self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#00AFEF", fg="white")
         self.select_button.pack(pady=(30, 50))
 
         # Botão para selecionar uma imagem
-        self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#007acc", fg="white")
+        self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#00AFEF", fg="white")
         self.select_image_button.place(x=447, y=99)
         
         # Label para exibir o nome da imagem
@@ -82,7 +91,7 @@ class ContactInterface:
         self.image_label.place(x=470, y=95, width=110)
         
         # Rótulo para a caixa de texto
-        self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
+        self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#3fb8af")
         self.message_label.pack()
 
         # Caixa de texto
@@ -91,16 +100,19 @@ class ContactInterface:
         self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá {aluno}, estamos felizes em tê-lo no curso de {curso} {roseli}{roseli}{roseli}!")
           
         # Botão de legenda
-        self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
+        self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#200152", fg="white")
         self.legend_button.place(x=0, y=99)
 
         # Botão para enviar as mensagens
-        self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
+        self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#46B653", fg="white")
         self.send_button.pack(pady=(10,0))
         
+        # Botão para abrir as instruções
+        self.instructions_button = tk.Button(self.root, text="Instruções", command=self.show_instructions, bg="#200152", fg="white")
+        self.instructions_button.place(x=20, y=460)
+
         # Rótulo para exibir mensagens de aviso
         self.warning_label = tk.Label(self.frame, text="", fg="red")
-        self.warning_label.pack()
         
         # Substitui emojis pelos placeholders
         self.emoji_mapping = {
@@ -114,27 +126,36 @@ class ContactInterface:
         }
 
         # Rótulo com a versão
-        version_label = tk.Label(self.root, text="Versão 4.1", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 4.1", bg="#3fb8af", fg="black")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Inicia a interface gráfica
         self.root.mainloop()
 
+
     def close_contact_interface(self):
         self.root.destroy()
         self.parent.deiconify()
+
 
     def show_welcome_message(self):
         welcome_message = (
             "Bot.unoesc - Envio de Mensagens Automáticas - contatos!\n"
             "Lembre-se de ajustar os cabeçalhos da planilha para que os dados sejam importados corretamente no programa:\n"
-            "Nome do aluno, Nome do curso, Telefone ou Telefone 1."
+            "'Nome do aluno'\n'Nome do curso'\n'Telefone' ou 'Telefone 1'"
         )
         messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
+
+
+    def show_instructions(self):
+        instructions = """Para que o bot funcione corretamente, certifique-se de conferir os cabeçalhos da planilha e carregue o whatsapp previamente para que o bot não pule etapas.\n\n'Nome do aluno'\n'Nome do curso'\n\nTambém certifique-se de que o navegador em que está o WhatsApp Web, do qual enviará as mensagens, esteja definido como navegador padrão nas configurações do Windows.\n\nVocê não poderá mexer no computador enquanto o bot estiver enviando as mensagens. Vá tomar um café... Se a lista for muito grande, tome vários cafés.\n\nO WhatsApp Web precisa estar na área de trabalho principal (geralmente onde ficam os atalhos).\n\nDúvidas, angústias ou aflições, entre em contato por email: arthur.sumny@unoesc.edu.com.br"""
+        messagebox.showinfo("Instruções", instructions)
+
 
     def back_to_main_interface(self):
         self.root.destroy()
         self.main_interface.root.deiconify()
+
 
     def select_file(self):
         # Função para selecionar um arquivo .xlsx
@@ -143,6 +164,7 @@ class ContactInterface:
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
             self.file_label.config(text=f"{file_name}")
+
 
     def select_image(self):
         # Função para selecionar uma imagem
@@ -155,6 +177,7 @@ class ContactInterface:
             # Atualiza a label com o nome do arquivo
             file_name = os.path.basename(image_file)
             self.image_label.config(text=file_name)
+
 
     def show_image(self):
         if self.image_path:
@@ -175,6 +198,7 @@ class ContactInterface:
 
             ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
             ok_button.pack(pady=10)
+
 
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
@@ -197,6 +221,7 @@ class ContactInterface:
             custom_message = custom_message.replace(emoji_placeholder, emoji_code)
 
         messages_to_send = []
+        telefones_incorretos = []
         
         if 'Nome do aluno' in df.columns and ('Telefone' in df.columns or 'Telefone 1' in df.columns):
             for index, row in df.iterrows():
@@ -212,13 +237,13 @@ class ContactInterface:
                 telefone = row.get('Telefone', row.get('Telefone 1', None))
 
                 if telefone is None or pd.isnull(telefone):
-                    messagebox.showwarning("Erro", f"Telefone não encontrado para {full_name}. Pulando mensagem.")
+                    telefones_incorretos.append(f"Telefone não encontrado para {full_name}. Pulando mensagem.")
                     continue
                     
                 telefone_numerico = re.sub(r'\D', '', str(telefone))
                 
                 if len(telefone_numerico) != 11:
-                    messagebox.showwarning("Erro", f"Telefone de {full_name} com número incorreto de dígitos.")
+                    telefones_incorretos.append(f"Telefone de {full_name} com número incorreto de dígitos.")
                     continue
             
                 telefone_formatado = '+55' + telefone_numerico
@@ -227,9 +252,14 @@ class ContactInterface:
                 
                 messages_to_send.append((full_name, telefone_formatado, message))
 
+            if telefones_incorretos:
+                mensagem_erro = "Erros nos telefones:\n\n" + "\n".join(telefones_incorretos)
+                messagebox.showwarning("Erro", mensagem_erro)
+
             self.show_validation_dialog(messages_to_send)
         else:
-            messagebox.showwarning("Aviso", "As colunas 'aluno' e/ou 'telefone' não foram encontradas no arquivo.")
+            messagebox.showwarning("Aviso", "As colunas 'Nome do aluno' e/ou 'Telefone' não foram encontradas no arquivo.")
+
 
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
@@ -242,6 +272,7 @@ class ContactInterface:
                 kit.sendwhatmsg_instantly(telefone_formatado, message, 15, 3)
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
+           
                  
     def show_validation_dialog(self, messages_to_send):
         # Mostra janela de validação
@@ -260,6 +291,7 @@ class ContactInterface:
 
         cancel_button = tk.Button(validation_dialog, text="Cancelar Envio", command=validation_dialog.destroy, bg="#f44336", fg="white")
         cancel_button.pack(pady=10)
+
 
     def show_legend(self):
         # Função para mostrar a legenda
@@ -283,7 +315,10 @@ class ContactInterface:
         legend_textbox.pack(fill="both", expand=True)
         legend_textbox.insert("end", legend_text)
 
+
 class GroupInterface:
+    
+
     def __init__(self, parent, main_interface):
         self.selected_file = None
         self.main_interface = main_interface
@@ -291,17 +326,18 @@ class GroupInterface:
         # Inicialização da janela principal do aplicativo
         self.parent = parent
         self.root = tk.Toplevel(self.parent)
-        self.root.title("Bot.unoesc - Envio de Mensagens Automáticas")
+        self.root.title("Bot.unoesc - Envio de Mensagens Automáticas - Grupo")
         self.root.geometry("600x500")
         self.root.protocol("WM_DELETE_WINDOW", self.close_Group_interface)
-        
+        self.root.resizable("0", "0")
+            
         # Quadro dentro da janela
         self.frame = tk.Frame(self.root)
         self.frame.pack(padx=20, pady=20)
 
         # Personalizar cores
-        self.root.configure(bg="#f0f0f0")
-        self.frame.configure(bg="#f0f0f0")
+        self.root.configure(bg="#3fb8af")
+        self.frame.configure(bg="#3fb8af")
 
         # Rótulo de aviso para exibir a mensagem
         self.show_welcome_message()
@@ -315,11 +351,11 @@ class GroupInterface:
         self.file_label.place(x=226, y=7, width=110)
         
         # Botão para selecionar um arquivo
-        self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#007acc", fg="white")
+        self.select_button = tk.Button(self.frame, text="Selecionar Arquivo", command=self.select_file, bg="#00AFEF", fg="white")
         self.select_button.pack(pady=(30, 50))
 
         # Botão para selecionar uma imagem
-        self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#007acc", fg="white")
+        self.select_image_button = tk.Button(self.frame, text="Selecionar Imagem", command=self.select_image, bg="#00AFEF", fg="white")
         self.select_image_button.place(x=447, y=99)
         
         # Label para exibir o nome da imagem
@@ -327,25 +363,29 @@ class GroupInterface:
         self.image_label.place(x=470, y=95, width=110)
         
         # Rótulo para a caixa de texto
-        self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#f0f0f0")
+        self.message_label = tk.Label(self.frame, text="Digite sua mensagem aqui:", bg="#3fb8af")
         self.message_label.pack()
 
         # Caixa de texto
         self.message_text = tk.Text(self.frame, height=10, width=70, bg="white", wrap="word")
         self.message_text.pack()
-        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {curso}, cuidado com o bot do café.{roseli}{roseli}{roseli}!")
+        self.message_text.insert("1.0","Use {código} para substituir os valores.\n\nExemplo:\n\nOlá alunos hoje começará as aulas de {curso} no horário {horario}.{roseli}{roseli}{roseli}!")
           
         # Botão de legenda
-        self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#ffcc00")
+        self.legend_button = tk.Button(self.frame, text="Legenda", command=self.show_legend, bg="#200152", fg="white")
         self.legend_button.place(x=0, y=99)
 
         # Botão para enviar as mensagens
-        self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#4caf50", fg="white")
+        self.send_button = tk.Button(self.frame, text="Enviar Mensagens", command=self.validate_and_send_messages, bg="#46B653", fg="white")
         self.send_button.pack(pady=(10,0))
+        
+        # Botão para abrir as instruções
+        self.instructions_button = tk.Button(self.root, text="Instruções", command=self.show_instructions, bg="#200152", fg="white")
+        self.instructions_button.place(x=20, y=460)
         
         # Rótulo para exibir mensagens de aviso
         self.warning_label = tk.Label(self.frame, text="", fg="red")
-        self.warning_label.pack()
+        
         
         # Substitui emojis pelos placeholders
         self.emoji_mapping = {
@@ -359,27 +399,36 @@ class GroupInterface:
         }
 
         # Rótulo com a versão
-        version_label = tk.Label(self.root, text="Versão 4.1", bg="#f0f0f0", fg="gray")
+        version_label = tk.Label(self.root, text="Versão 4.1", bg="#3fb8af", fg="black")
         version_label.pack(side="bottom", padx=10, pady=10, anchor="se")
         
         # Inicia a interface gráfica
         self.root.mainloop()
 
+
     def close_Group_interface(self):
         self.root.destroy()
         self.parent.deiconify()
 
+
     def show_welcome_message(self):
         welcome_message = (
             "Bot.unoesc - Envio de Mensagens Automáticas - grupo!\n"
-            "Lembre-se de ajustar os cabeçalhos da planilha para que os dados sejam importados corretamente no programa:\n"
-            "'Nome do grupo'\n'Nome do curso'\n'Horário'."
+            "Lembre-se de ajustar os cabeçalhos da planilha para que os dados sejam importados corretamente no programa:\n\n"
+            "'Nome do grupo'\n'Nome do curso'\n'Horário'"
         )
         messagebox.showinfo("Aviso de Boas-Vindas", welcome_message)
+
+
+    def show_instructions(self):
+        instructions = """Para que o bot funcione corretamente, certifique-se de conferir os cabeçalhos da planilha e carregue o whatsapp previamente para que o bot não pule etapas.\n\n'Nome do grupo'\n\nOs dados de 'Nome do grupo' são os números do link do grupo, ex: chat.whatsapp.com/F8WHyyXSJe01lUNSDLnUCM = F8WHyyXSJe01lUNSDLnUCM\n\n'Nome curso'\n'Horário'\n'Nome componente curricular'\n'Link das Trilhas'\n'Professor(es)'\n\nTambém certifique-se de que o navegador em que está o WhatsApp Web, do qual enviará as mensagens, esteja definido como navegador padrão nas configurações do Windows.\n\nVocê não poderá mexer no computador enquanto o bot estiver enviando as mensagens. Vá tomar um café... Se a lista for muito grande, tome vários cafés.\n\nO WhatsApp Web precisa estar na área de trabalho principal (geralmente onde ficam os atalhos).\n\nDúvidas, angústias ou aflições, entre em contato por email: arthur.sumny@unoesc.edu.com.br"""
+        messagebox.showinfo("Instruções", instructions)
+
 
     def back_to_main_interface(self):
         self.root.destroy() 
         self.main_interface.root.deiconify()
+
 
     def select_file(self):
         # Função para selecionar um arquivo Excel (.xlsx)
@@ -388,6 +437,7 @@ class GroupInterface:
             messagebox.showinfo("Arquivo Selecionado", "Arquivo selecionado com sucesso!")
             file_name = os.path.basename(self.selected_file)
             self.file_label.config(text=f"{file_name}")
+          
             
     def select_image(self):
         # Função para selecionar uma imagem
@@ -400,6 +450,7 @@ class GroupInterface:
             # Atualizar a label fixa com o nome do arquivo
             file_name = os.path.basename(image_file)
             self.image_label.config(text=file_name)
+
 
     def show_image(self):
         if self.image_path:
@@ -418,8 +469,9 @@ class GroupInterface:
             image_label.photo = photo  # Mantenha uma referência para evitar que a imagem seja liberada da memória
             image_label.pack()
 
-            ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#007acc", fg="white")
+            ok_button = tk.Button(image_window, text="OK", command=image_window.destroy, bg="#00AFEF", fg="white")
             ok_button.pack(pady=10)
+
 
     def validate_and_send_messages(self):
         # Função para validar e enviar as mensagens
@@ -449,24 +501,45 @@ class GroupInterface:
                 
                 if 'Horário' in df.columns:
                     horario = row['Horário']
+                    horario = horario.strftime('%H:%M')
                 else:
                     horario = "" 
-                    
-                if 'Nome do curso' in df.columns:
-                    curso = row['Nome do curso']
+                
+                if 'Nome componente curricular' in df.columns:
+                    componente = row['Nome componente curricular']
+                else:
+                    componente = ""     
+                
+                if 'Web' in df.columns:
+                    data = row['Web']
+                else:
+                    data = ""
+                
+                if 'Link das Trilhas' in df.columns:
+                    link = row['Link das Trilhas']
+                else:
+                    link = ""
+                
+                if 'Professor(es)' in df.columns:
+                    professor = row['Professor(es)']
+                    professor = re.sub(r'[^a-zA-Z ]', '', professor)
+                else:
+                    professor = "" 
+                
+                if 'Nome curso' in df.columns:
+                    curso = row['Nome curso']
                 else:
                     curso = ""
                 
            
-                message = custom_message.format(curso=curso, horario=horario)
+                message = custom_message.format(curso=curso, horario=horario, link=link, data=data, professor=professor, componente=componente)
                 
                 messages_to_send.append((grupo, curso, message))
-                print(grupo)
 
             self.show_validation_dialog(messages_to_send)
-            print("\n", grupo)
         else:
-            messagebox.showwarning("Aviso", "A coluna 'grupo' não foi encontrada no arquivo.")
+            messagebox.showwarning("Aviso", "A coluna 'Nome do grupo' não foi encontrada no arquivo.")
+
 
     def send_messages(self, messages_to_send, validation_dialog):
         # Função para enviar as mensagens
@@ -474,13 +547,13 @@ class GroupInterface:
         
         for grupo, curso, message in messages_to_send:
             if hasattr(self, 'image_path'):
-                print(message)
-                kit.sendwhats_image(grupo, self.image_path, message, 30, 3)
+                kit.sendwhats_image(grupo, self.image_path, message, 15, 3)
             else:
                 print(message)
-                kit.sendwhatmsg_to_group_instantly(grupo, message, 20, 3)
+                kit.sendwhatmsg_to_group_instantly(grupo, message, 15, 3)
         success_message = "Mensagens enviadas com sucesso!"
         messagebox.showinfo("Sucesso", success_message)
+              
                  
     def show_validation_dialog(self, messages_to_send):
         # Mostra janela de validação de mensagens
@@ -500,6 +573,7 @@ class GroupInterface:
         cancel_button = tk.Button(validation_dialog, text="Cancelar Envio", command=validation_dialog.destroy, bg="#f44336", fg="white")
         cancel_button.pack(pady=10)
 
+
     def show_legend(self):
         # Função para mostrar a legenda em uma janela separada
         legend_window = tk.Toplevel(self.root)
@@ -507,8 +581,8 @@ class GroupInterface:
         legend_window.geometry("400x300")
 
         legend_text = (
-            "{grupo} = aparecerá o nome do grupo\n"
-            "{componente} = aparecerá o nome do componente\n"
+            "{curso} = aparecerá o nome do componente\n"
+            "{horario} = aparecerá o horario\n"
             "{daniel} = 😊 Emoji de sorriso\n"
             "{arthur} = 😍 Emoji de coração nos olhos\n"
             "{patriciane} = 😁 Emoji sorridente com olhos fechados\n"
@@ -522,10 +596,12 @@ class GroupInterface:
         legend_textbox.pack(fill="both", expand=True)
         legend_textbox.insert("end", legend_text)
 
+
 def main():
     root = tk.Tk()
     app = MainInterface(root)
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
